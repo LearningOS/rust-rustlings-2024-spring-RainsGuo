@@ -19,7 +19,7 @@ fn get_char(data: String) -> char {
 }
 
 // Should take ownership
-fn string_uppercase(mut data: &String) {
+fn string_uppercase<'a>(mut data: &String) {
     let data = &data.to_uppercase();
 
     println!("{}", data);
