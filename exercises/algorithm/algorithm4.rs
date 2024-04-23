@@ -3,9 +3,8 @@
 	This problem requires you to implement a basic interface for a binary tree
 */
 
-//I AM NOT DONE
 use std::cmp::Ordering;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 
 #[derive(Debug)]
@@ -21,14 +20,14 @@ where
 #[derive(Debug)]
 struct BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord + Display,
 {
     root: Option<Box<TreeNode<T>>>,
 }
 
 impl<T> TreeNode<T>
 where
-    T: Ord,
+    T: Ord + Display,
 {
     fn new(value: T) -> Self {
         TreeNode {
@@ -41,7 +40,7 @@ where
 
 impl<T> BinarySearchTree<T>
 where
-    T: Ord,
+    T: Ord + Display,
 {
 
     fn new() -> Self {
@@ -50,13 +49,56 @@ where
 
     // Insert a value into the BST
     fn insert(&mut self, value: T) {
-        //TODO
+        let mut root = self.root.as_mut();
+        loop {
+            match root {
+                None => {
+                    self.root = Some(Box::new(TreeNode::new(value)));
+                    break;
+                }
+                Some(node) => {
+                    if value > node.value {
+                        if node.right.is_none() {
+                            node.right = Some(Box::new(TreeNode::new(value)));
+                            break;
+                        } else {
+                            root = node.right.as_mut();
+                        }
+                    } else if value < node.value {
+                        if node.left.is_none() {
+                            node.left = Some(Box::new(TreeNode::new(value)));
+                            break;
+                        } else {
+                            root = node.left.as_mut();
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // Search for a value in the BST
     fn search(&self, value: T) -> bool {
-        //TODO
-        true
+        let mut root = self.root.as_ref();
+        loop {
+            match root {
+                None => {
+                    return false;
+                }
+                Some(node) => {
+                    println!("node: {}", node.value);
+                    if value > node.value {
+                        root = node.right.as_ref();
+                    } else if value < node.value {
+                        root = node.left.as_ref();
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
     }
 }
 

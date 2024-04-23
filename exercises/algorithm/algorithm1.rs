@@ -2,19 +2,19 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
+use std::convert::TryInto;
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
 #[derive(Debug)]
-struct Node<T> {
+struct Node<T: PartialOrd+Clone> {
     val: T,
     next: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Node<T> {
+impl<T: PartialOrd+Clone> Node<T> {
     fn new(t: T) -> Node<T> {
         Node {
             val: t,
@@ -23,19 +23,19 @@ impl<T> Node<T> {
     }
 }
 #[derive(Debug)]
-struct LinkedList<T> {
+struct LinkedList<T: PartialOrd+Clone> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: PartialOrd+Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: PartialOrd+Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,7 +69,7 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
+	pub fn merge(mut list_a: LinkedList<T>, mut list_b: LinkedList<T>) -> Self
 	{
         if list_a.length == 0 {
             return list_b;
@@ -77,21 +77,40 @@ impl<T> LinkedList<T> {
         if list_b.length == 0 {
             return list_a;
         }
-
-
-
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut idx_a = 0i32;
+        let mut idx_b = 0i32;
+        let mut res = LinkedList::<T>::new();
+        loop {
+            if idx_a >= list_a.length.try_into().unwrap() && idx_b >= list_b.length.try_into().unwrap() {
+                break;
+            }
+            if idx_a >= list_a.length.try_into().unwrap() && idx_b < list_b.length.try_into().unwrap() {
+                let b = list_b.get(idx_b).unwrap();
+                res.add(b.clone());
+                idx_b += 1;
+            } else if idx_b >= list_b.length.try_into().unwrap() && idx_a < list_a.length.try_into().unwrap() {
+                let a = list_a.get(idx_a).unwrap();
+                res.add(a.clone());
+                idx_a += 1;
+            } else {
+                let a = list_a.get(idx_a).unwrap();
+                let b = list_b.get(idx_b).unwrap();
+                if a < b {
+                    res.add(a.clone());
+                    idx_a += 1;
+                } else {
+                    res.add(b.clone());
+                    idx_b += 1;
+                }
+            }
         }
+        res
 	}
 }
 
 impl<T> Display for LinkedList<T>
 where
-    T: Display,
+    T: Display + PartialOrd + Clone,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.start {
@@ -103,7 +122,7 @@ where
 
 impl<T> Display for Node<T>
 where
-    T: Display,
+    T: Display + PartialOrd + Clone,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self.next {
